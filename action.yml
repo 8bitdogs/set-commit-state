@@ -1,0 +1,60 @@
+name: Set Commit Status
+description: Sets a commit status (error, failure, pending, success) on a GitHub commit.
+author: 8bitdogs
+
+branding:
+  icon: check-circle
+  color: blue
+
+inputs:
+  repository:
+    description: Repository in owner/repo format.
+    required: false
+    default: ${{ github.repository }}
+  sha:
+    description: The commit SHA to set the status on.
+    required: false
+    default: ${{ github.sha }}
+  state:
+    description: "The state of the status. One of: error, failure, pending, success."
+    required: false
+    default: pending
+  context:
+    description: A label used to differentiate this status from the statuses of other systems.
+    required: false
+    default: set-commit-status
+  description:
+    description: A short description of the status.
+    required: false
+    default: ""
+  token:
+    description: GitHub token with repo:status permission.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set commit status
+      uses: actions/github-script@v7
+      env:
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_SHA: ${{ inputs.sha }}
+        INPUT_STATE: ${{ inputs.state }}
+        INPUT_CONTEXT: ${{ inputs.context }}
+        INPUT_DESCRIPTION: ${{ inputs.description }}
+      with:
+        github-token: ${{ inputs.token }}
+        script: |
+          const [owner, repo] = process.env.INPUT_REPOSITORY.split('/');
+          const params = {
+            owner,
+            repo,
+            sha: process.env.INPUT_SHA,
+            state: process.env.INPUT_STATE,
+            context: process.env.INPUT_CONTEXT,
+          };
+          if (process.env.INPUT_DESCRIPTION) {
+            params.description = process.env.INPUT_DESCRIPTION;
+          }
+          await github.rest.repos.createCommitStatus(params);
+          core.info(`Status "${params.state}" set on ${owner}/${repo}@${params.sha} [${params.context}]`);
