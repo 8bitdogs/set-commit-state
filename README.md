@@ -17,8 +17,8 @@ A GitHub Action that sets a [commit status](https://docs.github.com/en/rest/comm
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
 | `token` | GitHub token with `repo:status` permission | **Yes** | — |
-| `repository` | Repository in `owner/repo` format | No | `${{ github.repository }}` |
-| `sha` | The commit SHA to set the status on | No | `${{ github.sha }}` |
+| `repository` | Repository in `owner/repo` format | No | _(current repository)_ |
+| `sha` | The commit SHA to set the status on | No | _(current commit SHA)_ |
 | `state` | Status state: `error`, `failure`, `pending`, `success` | No | `pending` |
 | `context` | Label used to differentiate this status from others | No | `set-commit-status` |
 | `description` | Short description of the status | No | _(empty)_ |

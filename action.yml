@@ -8,19 +8,20 @@ branding:
 
 inputs:
   repository:
-    description: Repository in owner/repo format.
+    description: "Repository in owner/repo format. Defaults to the current repository."
     required: false
-    default: ${{ github.repository }}
+    default: ""
   sha:
-    description: The commit SHA to set the status on.
+    description: "The commit SHA to set the status on. Defaults to the current commit."
     required: false
-    default: ${{ github.sha }}
+    default: ""
   state:
     description: "The state of the status. One of: error, failure, pending, success."
     required: false
     default: pending
   context:
-    description: A label used to differentiate this status from the statuses of other systems.
+    description: A label used to differentiate this status from the statuses of
+      other systems.
     required: false
     default: set-commit-status
   description:
@@ -45,11 +46,13 @@ runs:
       with:
         github-token: ${{ inputs.token }}
         script: |
-          const [owner, repo] = process.env.INPUT_REPOSITORY.split('/');
+          const repository = process.env.INPUT_REPOSITORY || process.env.GITHUB_REPOSITORY;
+          const sha        = process.env.INPUT_SHA        || process.env.GITHUB_SHA;
+          const [owner, repo] = repository.split('/');
           const params = {
             owner,
             repo,
-            sha: process.env.INPUT_SHA,
+            sha,
             state: process.env.INPUT_STATE,
             context: process.env.INPUT_CONTEXT,
           };
